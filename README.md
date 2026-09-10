@@ -9,7 +9,7 @@ o mesmo banco.
 
 > **Marca de demonstração.** A identidade visual desta versão é **S.T.A.R. Laboratories**, uma
 > marca fictícia usada apenas como exemplo enquanto o sistema está em avaliação. Papéis, horários
-> e agenda são os reais; nome, cores e unidade são placeholder.
+> e agenda são fabricados, semelhanças são mera coincidência; nome, cores e unidade são placeholder.
 >
 > **Disclaimer.** Projeto pessoal, criado por iniciativa própria e distribuído sob licença MIT.
 > Não é produto oficial de nenhuma empresa e **não se integra a sistemas corporativos**. Guarda
