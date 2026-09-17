@@ -435,21 +435,24 @@ def conteudo(largura):
         "clique para entrar com a sua conta. Depois avance.",
         "Escolha a <b>Equipe</b> e o <b>Canal</b> de destino. Avance.",
         "Clique em <b>Adicionar fluxo de trabalho</b> (Add workflow).",
-        "A tela final mostra a <b>URL do fluxo</b>. <b>Copie agora</b> e guarde num lugar "
-        "seguro. É uma URL longa, começa com <font name='Mono'>https://</font> e contém "
-        "<font name='Mono'>logic.azure.com</font>.",
+        "A tela final mostra uma <b>URL do fluxo</b>. Você pode copiar, mas <b>não é essa que "
+        "vale</b>: ela ainda vai mudar na Parte 2. Pode fechar sem medo.",
     ]))
     A(Spacer(1, 3 * mm))
-    A(callout("Fechou sem copiar?",
-              "Não precisa recriar o fluxo. A seção 5 mostra onde a URL reaparece dentro do "
-              "Power Automate."))
+    A(callout("Por que a URL ainda vai mudar.",
+              "A URL carrega a assinatura que autoriza a chamada, e essa assinatura só entra "
+              "nela quando o gatilho é liberado para quem não está logado. Isso é o primeiro "
+              "passo da Parte 2. Copiar a URL antes disso é copiar uma que não vai funcionar.",
+              TERRA))
     A(Spacer(1, 6 * mm))
     A(Paragraph("Como a URL se parece", st["h2"]))
-    A(code("https://prod-27.brazilsouth.logic.azure.com:443/workflows/8f3c.../triggers\n"
-           "/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual\n"
-           "%2Frun&sv=1.0&sig=QnVfLW...", largura))
-    A(Paragraph("A sua vai ser diferente e mais longa. Copie inteira, do "
-                "<font name='Mono'>https</font> ao último caractere.", st["sub"]))
+    A(code("https://<região>.api.powerplatform.com/powerautomate/automations/direct\n"
+           "/workflows/8f3c.../triggers/manual/paths/invoke?api-version=1\n"
+           "&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QnVfLW...", largura))
+    A(Paragraph("A sua vai ser diferente e mais longa. O domínio pode variar: o antigo "
+                "<font name='Mono'>logic.azure.com</font> foi aposentado em favor de "
+                "<font name='Mono'>api.powerplatform.com</font>. Copie o que a tela mostrar, "
+                "inteiro, do <font name='Mono'>https</font> ao último caractere.", st["sub"]))
     A(PageBreak())
 
     # ---------------------------------------------------------- parte 2
@@ -466,17 +469,29 @@ def conteudo(largura):
         "recebida</b> e a ação <b>Postar cartão em um chat ou canal</b>.",
     ]))
     A(Spacer(1, 4 * mm))
-    A(Paragraph("2.1 &nbsp; Liberar o gatilho", st["h2"]))
+    A(Paragraph("2.1 &nbsp; Liberar o gatilho e pegar a URL", st["h2"]))
     A(passos([
-        "Clique na caixa do <b>gatilho</b>, a de cima.",
-        "Procure a opção <b>Quem pode acionar o fluxo?</b> (Who can trigger the flow?) e "
-        "escolha <b>Qualquer pessoa</b> (Anyone).",
+        "Clique na caixa do <b>gatilho</b>, a de cima. Fique na aba <b>Parâmetros</b>.",
+        "Em <b>Quem pode disparar o fluxo?</b>, abra a lista e escolha <b>Alguém</b>.",
+        "Clique em <b>Salvar</b>.",
+        "Volte na caixa do gatilho. Agora copie a <b>URL do HTTP POST</b>, com o botão de "
+        "copiar ao lado do campo. <b>É esta a URL</b> que vai para o banco, na Parte 3.",
     ], start=5))
     A(Spacer(1, 3 * mm))
-    A(callout("Este passo não é opcional.",
-              "Sem ele, o fluxo só aceita chamadas de quem está logado no Teams. O Supabase não "
-              "está logado em nada: ele recebe um erro de autenticação e o aviso nunca chega, "
-              "sem nenhuma mensagem de erro visível no Teams.", TERRA))
+    A(callout("Alguém quer dizer Anyone.",
+              "A tradução da Microsoft para o português ficou estranha. A lista mostra quatro "
+              "linhas: <b>Alguém</b>, <i>Qualquer usuário no meu locatário</i>, <i>Usuários "
+              "específicos do meu locatário</i> e <i>Inserir valor personalizado</i>. "
+              "<b>Alguém</b> é o Anyone, e é a única que serve. As duas do locatário exigem que "
+              "quem chama esteja logado na sua organização, e o Supabase não está logado em "
+              "nada: ele tomaria um erro de autenticação e o aviso nunca chegaria, sem nenhuma "
+              "mensagem de erro visível no Teams.", TERRA))
+    A(Spacer(1, 3 * mm))
+    A(Paragraph(
+        "Se a lista não aceitar <b>Alguém</b>, ou o fluxo se recusar a salvar depois de "
+        "escolher, é política da sua organização barrando gatilhos anônimos. Nesse caso não há "
+        "contorno pelo lado do Supabase, e o caminho é falar com quem administra o Power "
+        "Platform.", st["body"]))
     A(Spacer(1, 6 * mm))
     A(Paragraph("2.2 &nbsp; Trocar o cartão", st["h2"]))
     A(passos([
@@ -488,7 +503,7 @@ def conteudo(largura):
         "Se o endereço do seu painel não for o do último item do cartão, troque a URL dentro de "
         "<font name='Mono'>Action.OpenUrl</font>.",
         "Clique em <b>Salvar</b>.",
-    ], start=7))
+    ], start=9))
     A(Spacer(1, 4 * mm))
     A(Paragraph(
         "O cartão usa expressões como <font name='Mono'>@{triggerBody()?['titulo']}</font>. "
@@ -581,8 +596,9 @@ select status_code, content, created
     A(tabela(
         ["Resposta", "O que significa"],
         [["202 ou 200", "Aceito. O fluxo recebeu e vai postar."],
-         ["401 ou 403", "O gatilho não está em <b>Qualquer pessoa</b>. Volte ao passo 6."],
-         ["404", "A URL está incompleta ou o fluxo foi apagado. Copie a URL de novo."],
+         ["401 ou 403", "O gatilho não está em <b>Alguém</b>. Volte ao passo 6."],
+         ["404", "A URL está incompleta, é a antiga do wizard, ou o fluxo foi apagado. "
+                  "Copie a URL de novo pelo gatilho."],
          ["400", "O fluxo recebeu mas rejeitou o corpo. Veja o histórico de execuções na "
                  "seção 5."],
          ["nada listado", "O <font name='Mono'>pg_net</font> não chegou a enviar. Confirme que "
@@ -719,8 +735,10 @@ select status, return_message, start_time
     A(Paragraph("Não chega nada: a lista de checagem", st["h2"]))
     A(tabela(
         ["Confira", "Como"],
-        [["O gatilho aceita qualquer um",
+        [["O gatilho está em <b>Alguém</b>",
           "Parte 2, passo 6. É a causa mais comum."],
+         ["A URL foi copiada depois disso",
+          "A assinatura só entra na URL quando o gatilho é liberado"],
          ["O tipo está ligado e tem URL",
           "<font name='Mono'>select * from andon_notify_status;</font>"],
          ["As extensões estão ligadas",
