@@ -167,6 +167,8 @@ h3{ font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
   background: var(--paper-dim); border-radius: var(--r-sm); padding: 7px 12px;
   overflow-wrap: anywhere; color: var(--ink);
 }
+.sc-lead{ color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; margin-top: 10px; }
+.sc-lead b{ color: var(--ink); font-weight: 600; }
 .sc-steps{ margin: 14px 0 0 18px; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
 .sc-steps li{ padding-left: 4px; }
 .sc-steps b{ color: var(--ink); font-weight: 600; }
@@ -1350,6 +1352,24 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
         </div>
       </article>
 
+      <article class="setup-card">
+        <span class="sc-icon" data-icon="teams"></span>
+        <div class="sc-body">
+          <h3>Avisos no Teams <span class="sc-tag">opcional</span></h3>
+          <p class="sc-lead">Um chamado que fica aberto além do tempo configurado vira mensagem
+            num canal do Teams. Serve de escalonamento: os painéis já mostram a fila a quem
+            precisa agir, o Teams cobra o que ninguém atendeu.</p>
+          <ol class="sc-steps">
+            <li>No banco, rode a migração <b>0006_andon_teams.sql</b>.</li>
+            <li>No Teams, crie o fluxo que recebe o aviso e copie a URL dele.</li>
+            <li>Cole a URL em <b>andon_notify_config</b> e ligue o tipo de chamado.</li>
+          </ol>
+          <p class="sc-lead">O passo a passo completo, com as telas do Teams e do Power Automate,
+            está no guia <b>docs/teams-andon.pdf</b> do repositório. Esta configuração vive só no
+            banco: a URL é uma credencial e nunca entra neste arquivo.</p>
+        </div>
+      </article>
+
     </div>
 
     <div class="setup-note">
@@ -1719,6 +1739,9 @@ const ICONS = {
                 '<circle cx="12" cy="12" r="3"/>',
   assistente:   '<path d="M4 13.2v-1.4a8 8 0 0 1 16 0v1.4"/><rect x="2.4" y="13.2" width="4.2" height="6.2" rx="2.1"/>' +
                 '<rect x="17.4" y="13.2" width="4.2" height="6.2" rx="2.1"/>',
+  teams:        '<path d="M14.6 7.4h6.2v6.8a3.4 3.4 0 0 1-6.8 0V7.4"/>' +
+                '<circle cx="17.6" cy="4" r="1.9"/><rect x="2.4" y="6.2" width="10.4" height="11.6" rx="2.2"/>' +
+                '<path d="M5.4 9.6h4.4M7.6 9.6v4.8"/>',
   chevron:      '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>'
 };
 function iconSvg(nome){

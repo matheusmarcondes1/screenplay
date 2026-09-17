@@ -86,6 +86,30 @@ para concluir. O **Assistente** tem ainda **Estatísticas** (com exportação CS
 - **Notificações de Andon** — liga a fila nas TVs e guarda URL e chave do Supabase.
 - **Dados** — exportar e importar o cronograma da série em `.csv` que abre no Excel.
 
+## Avisos no Microsoft Teams
+
+Um chamado que fica aberto além do tempo configurado vira mensagem num canal do Teams. Serve de
+**escalonamento**: os painéis do andon já mostram a fila a quem precisa agir, e o Teams cobra o
+que ninguém atendeu.
+
+O banco é quem empurra o aviso, e nada é consultado de fora. O caminho é
+`andon_events` para `net.http_post`, daí para a URL de um fluxo do Teams, que monta a mensagem.
+Não exige licença paga do Power Automate.
+
+1. Rode a migração [`0006_andon_teams.sql`](supabase/migrations/0006_andon_teams.sql), com as
+   extensões `pg_net` e `pg_cron` ligadas.
+2. Monte o fluxo no Teams e cole a URL dele em `andon_notify_config`.
+
+O passo a passo completo, com as telas do Teams e do Power Automate, o cartão pronto para copiar
+e a lista de checagem, está em **[`docs/teams-andon.pdf`](docs/teams-andon.pdf)**.
+
+Por tipo de chamado dá para escolher o tempo até escalar, se avisa já na abertura, se repete
+enquanto segue aberto e para qual canal vai. Um canal só ou um por perfil: é a mesma URL nas
+quatro linhas, ou uma URL diferente em cada.
+
+> A URL do fluxo é a credencial de quem posta no canal. Ela vive só no banco, com a leitura
+> fechada para a chave publishable, e **nunca entra no `index.html`** que as TVs baixam.
+
 > **Como editar os horários.** As alterações ficam em rascunho enquanto você digita. Ao terminar,
 > clique em **Gravar alterações** (ou **Descartar**). Os horários usam intervalos de 5 minutos.
 
@@ -117,8 +141,10 @@ pessoas.
 
 ```
 index.html                 Painel + Andon, num arquivo só
+docs/
+  teams-andon.pdf          Guia dos avisos no Teams, passo a passo
 supabase/
-  migrations/*.sql         Tabelas, RLS e Realtime
+  migrations/*.sql         Tabelas, RLS, Realtime e avisos no Teams
   README.md                Passo a passo de configuração
 LICENSE                    MIT
 ```

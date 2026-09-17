@@ -75,3 +75,27 @@ Fluxo de status: `aberto → resolvido` (concluído pelo receptor) ou `cancelado
 Sem login por decisão de uso (piso). As tabelas expõem apenas dados operacionais (tipo, mesa,
 etapa, horário) — sem nomes ou informação pessoal. Se no futuro quiser restringir escrita/leitura,
 dá para reintroduzir uma camada de autenticação leve; me avise.
+
+---
+
+## Avisos no Microsoft Teams (opcional)
+
+A migração [`0006_andon_teams.sql`](migrations/0006_andon_teams.sql) faz o banco avisar um canal
+do Teams quando um chamado fica aberto além do tempo configurado. Requer as extensões `pg_net` e
+`pg_cron` ligadas em **Database > Extensions**.
+
+Ela cria:
+
+- `andon_notify_config` — uma linha por tipo de chamado, com a URL do fluxo do Teams, o tempo até
+  escalar, se avisa na abertura e se repete. Nasce desligada e sem URL, então nada é enviado até
+  você mandar. **RLS fechada e grants revogados**: a chave publishable não lê esta tabela, porque
+  a URL é uma credencial.
+- `andon_notify_tick()` — roda de minuto em minuto pelo `pg_cron` e envia o que passou do tempo.
+- `andon_notify_test(tipo)` — manda um cartão de mentira, sem tocar em `andon_events`.
+- `andon_notify_status` — o estado de cada tipo, sem revelar a URL inteira.
+
+As funções têm o `execute` revogado do papel anônimo, senão quem tem a chave publishable
+conseguiria encher o canal. O gatilho de abertura continua funcionando, porque roda como o dono.
+
+O passo a passo do lado do Teams e do Power Automate está em
+[`docs/teams-andon.pdf`](../docs/teams-andon.pdf).
